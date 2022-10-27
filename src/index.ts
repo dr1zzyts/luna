@@ -1,5 +1,5 @@
 import { Client } from './entities/Client';
 
-exports = {
+export default {
   Client: Client
 }
