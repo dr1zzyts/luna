@@ -1,0 +1,4 @@
+{
+  "webSocketURL": "wss://gateway.discord.gg/?v=10",
+  "apiURL": "https://discord.com/api/v10"
+}
