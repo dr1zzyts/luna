@@ -1,6 +1,6 @@
 export type MessageType = {
   op: number,
-  d: object,
+  d: any,
   s: number,
   t: string
 }
