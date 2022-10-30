@@ -11,7 +11,7 @@ export type MessageMentionType = {
 export type MessagePayloadType = {
   timestamp: string,
   pinned: boolean,
-  mentions: MessageMentionType[],
+  mentions: Map<string, MessageMentionType>,
   mentionEveryone: boolean,
   mentionsRoles: string[] | undefined,
   member: GuildUserType,

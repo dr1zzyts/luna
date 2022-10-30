@@ -28,7 +28,7 @@ export type GuildPayloadType = {
   icon: string,
   joinedAt: string,
   description: string,
-  roles: GuildRoleType[],
-  emojis: GuildEmojiType[],
-  members: GuildUserType[],
+  roles: Map<string, GuildRoleType>,
+  emojis: Map<string, GuildEmojiType>,
+  members: Map<string, GuildUserType>,
 }

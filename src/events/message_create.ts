@@ -4,21 +4,27 @@ import { MessageMentionType, MessagePayloadType } from "../types/MessagePayloadT
 import { UserType } from "../types/UserType";
 import { MessageType } from "../types/WebSocketMessageType";
 
-export default function (payload: MessageType, client: Client) {
-  const messageMentionsData: MessageMentionType[] = payload.d.mentions.map((x: any) => [{
-    username: x.username,
-    member: {
-      roles: x.member.roles,
-      premium_since: x.member.premium_since,
-      nick: x.member.nick,
-      mute: x.member.mute,
-      joinedAt: x.member.joined_at,
-      avatar: x.member.avatar
-    },
-    id: x.id,
-    discriminator: x.discriminator,
-    avatar: x.avatar
-  }])
+export default async function (payload: MessageType, client: Client) {
+
+  const messageMentionsData: Map<string, MessageMentionType> = new Map()
+  payload.d.mentions.forEach((x: any) => {
+    const currMention = {
+      username: x.username,
+      member: {
+        roles: x.member.roles,
+        premium_since: x.member.premium_since,
+        nick: x.member.nick,
+        mute: x.member.mute,
+        joinedAt: x.member.joined_at,
+        avatar: x.member.avatar
+      },
+      id: x.id,
+      discriminator: x.discriminator,
+      avatar: x.avatar
+    }
+
+    messageMentionsData.set(currMention.id, currMention)
+  })
 
   const memberData: GuildUserType = {
     roles: payload.d.member.roles,
@@ -47,6 +53,7 @@ export default function (payload: MessageType, client: Client) {
     guildId: payload.d.guild_id,
     author: authorData
   }
-
+ 
   client.emit('message', messageObject)
+   if(client.ws.options?.infoLogs)console.log('[luna | client] - [log | event] - Client event "message_create" has been runned')
 }

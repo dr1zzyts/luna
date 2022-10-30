@@ -3,5 +3,5 @@ export type ClientUserType = {
   id: string,
   discriminator: string,
   bot: boolean,
-  avatar: string
+  avatar: string,
 }

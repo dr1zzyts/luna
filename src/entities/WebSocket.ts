@@ -8,10 +8,13 @@ import { Client } from "./Client";
 export class WebSocketStructure {
   private webSocketUrl:string;
   private ws:WebSocket;
-  private options: WebSocketOptions;
+  public options: WebSocketOptions;
   private client: Client;
+  private heartbeatInterval: number;
+  private connectedInterval: any;
+  private lastHelloTimestamp: number;
   private events: string[] = ['READY','GUILD_CREATE','MESSAGE_CREATE']
-  private botConfig: BotConfigType = {
+  #botConfig: BotConfigType = {
     token: null,
     intents: null
   };
@@ -38,8 +41,8 @@ export class WebSocketStructure {
     if (!options.token) throw new Error('[luna | websocket] [err] - Token has not been provided')
     if (!options.intents) throw new Error('[luna | websocket] [err] - Intents has not been provided')
 
-    this.botConfig.token = options.token
-    this.botConfig.intents = options.intents
+    this.#botConfig.token = options.token
+    this.#botConfig.intents = options.intents
   }
   private openEvent = () => {
     if(this.options?.infoLogs)console.log('[luna | websocket] [log | event] - Gateway event "open" has been runned!');
@@ -53,7 +56,14 @@ export class WebSocketStructure {
     if(this.options?.infoLogs)console.log('[luna | websocket] [log | event] - Gateway event "message" has been runned!')
     if (this.options?.developerLogs) console.log(parsedData);
     
-    if (parsedData.op === 10) this.identify(this.botConfig.token, this.botConfig.intents)
+    if (parsedData.op === 10) {
+      this.heartbeatInterval = parsedData.d.heartbeat_interval
+      this.stayConnected()
+      this.identify(this.#botConfig.token, this.#botConfig.intents)
+    } 
+    if (parsedData.op === 11) {
+      this.lastHelloTimestamp = Date.now()
+    }
     if (parsedData.t && this.events.includes(parsedData.t)) {
       const { default: module } = await import(`../events/${parsedData.t.toLowerCase()}.ts`)
       module(parsedData, this.client)
@@ -77,5 +87,15 @@ export class WebSocketStructure {
       }
     } 
     this.ws.send(JSON.stringify(identifyObject))
+  }
+  private stayConnected() {
+    this.lastHelloTimestamp = Date.now()
+
+    this.connectedInterval = setInterval(() => {
+      this.ws.send(JSON.stringify({
+        op: 1,
+        d: null
+      }))
+    },this.heartbeatInterval)
   }
 }
