@@ -8,7 +8,7 @@ const bot = new Luna.Client({
   intents: 'Intents here'
 })
 
-bot.login()
+bot.connect()
 
 bot.on('connect', () => {
   console.log(`Logged in ${bot.user.username}!`)
